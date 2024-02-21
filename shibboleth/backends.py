@@ -1,6 +1,6 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import RemoteUserBackend
-from django.conf import settings
 
 User = get_user_model()
 
@@ -18,7 +18,7 @@ class ShibbolethRemoteUserBackend(RemoteUserBackend):
     """
 
     # Create a User object if not already in the database?
-    create_unknown_user = getattr(settings, 'CREATE_UNKNOWN_USER', True)
+    create_unknown_user = getattr(settings, "CREATE_UNKNOWN_USER", True)
 
     def authenticate(self, request, remote_user, shib_meta):
         """
@@ -29,9 +29,11 @@ class ShibbolethRemoteUserBackend(RemoteUserBackend):
             return
         username = self.clean_username(remote_user)
         field_names = [x.name for x in User._meta.get_fields()]
-        shib_user_params = dict([(k, shib_meta[k]) for k in field_names if k in shib_meta])
+        shib_user_params = {k: shib_meta[k] for k in field_names if k in shib_meta}
 
-        user = self.setup_user(request=request, username=username, defaults=shib_user_params)
+        user = self.setup_user(
+            request=request, username=username, defaults=shib_user_params
+        )
         if user:
             self.update_user_params(user=user, params=shib_user_params)
             return user if self.user_can_authenticate(user) else None
@@ -49,7 +51,9 @@ class ShibbolethRemoteUserBackend(RemoteUserBackend):
         # instead we use get_or_create when creating unknown users since it has
         # built-in safeguards for multiple threads.
         if self.create_unknown_user:
-            user, created = User.objects.get_or_create(username=username, defaults=defaults)
+            user, created = User.objects.get_or_create(
+                username=username, defaults=defaults
+            )
             if created:
                 user = self.handle_created_user(request, user)
         else:
@@ -71,7 +75,9 @@ class ShibbolethRemoteUserBackend(RemoteUserBackend):
         user.save()
         try:
             return self.configure_user(request, user)
-        except TypeError: #on django < 2.2, configure_user just takes the user parameter
+        except (
+            TypeError
+        ):  # on django < 2.2, configure_user just takes the user parameter
             return self.configure_user(user)
 
     @staticmethod

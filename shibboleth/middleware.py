@@ -1,10 +1,13 @@
-from django.contrib.auth.middleware import RemoteUserMiddleware
-from django.contrib.auth.models import Group
-from django.contrib import auth
-from django.core.exceptions import ImproperlyConfigured
 import re
 
-from shibboleth.app_settings import SHIB_ATTRIBUTE_MAP, GROUP_ATTRIBUTES, GROUP_DELIMITERS
+from django.contrib import auth
+from django.contrib.auth.middleware import RemoteUserMiddleware
+from django.contrib.auth.models import Group
+from django.core.exceptions import ImproperlyConfigured
+
+from shibboleth.app_settings import GROUP_ATTRIBUTES
+from shibboleth.app_settings import GROUP_DELIMITERS
+from shibboleth.app_settings import SHIB_ATTRIBUTE_MAP
 
 
 class ShibbolethRemoteUserMiddleware(RemoteUserMiddleware):
@@ -12,15 +15,17 @@ class ShibbolethRemoteUserMiddleware(RemoteUserMiddleware):
     Authentication Middleware for use with Shibboleth.  Uses the recommended pattern
     for remote authentication from: http://code.djangoproject.com/svn/django/tags/releases/1.3/django/contrib/auth/middleware.py
     """
+
     def process_request(self, request):
         # AuthenticationMiddleware is required so that request.user exists.
-        if not hasattr(request, 'user'):
+        if not hasattr(request, "user"):
             raise ImproperlyConfigured(
                 "The Django remote user auth middleware requires the"
                 " authentication middleware to be installed.  Edit your"
                 " MIDDLEWARE_CLASSES setting to insert"
                 " 'django.contrib.auth.middleware.AuthenticationMiddleware'"
-                " before the RemoteUserMiddleware class.")
+                " before the RemoteUserMiddleware class."
+            )
 
         # Locate the remote user header.
         try:
@@ -30,7 +35,7 @@ class ShibbolethRemoteUserMiddleware(RemoteUserMiddleware):
             # request.user set to AnonymousUser by the
             # AuthenticationMiddleware).
             return
-        #If we got an empty value for request.META[self.header], treat it like
+        # If we got an empty value for request.META[self.header], treat it like
         #   self.header wasn't in self.META at all - it's still an anonymous user.
         if not username:
             return
@@ -45,10 +50,11 @@ class ShibbolethRemoteUserMiddleware(RemoteUserMiddleware):
         # Make sure we have all required Shiboleth elements before proceeding.
         shib_meta, error = self.parse_attributes(request)
         # Add parsed attributes to the session.
-        request.session['shib'] = shib_meta
+        request.session["shib"] = shib_meta
         if error:
-            raise ShibbolethValidationError("All required Shibboleth elements"
-                                            " not found.  %s" % shib_meta)
+            raise ShibbolethValidationError(
+                "All required Shibboleth elements" " not found.  %s" % shib_meta
+            )
 
         # We are seeing this user for the first time in this session, attempt
         # to authenticate the user.
@@ -58,7 +64,7 @@ class ShibbolethRemoteUserMiddleware(RemoteUserMiddleware):
             # by logging the user in.
             request.user = user
             auth.login(request, user)
-            
+
             # Upgrade user groups if configured in the settings.py
             # If activated, the user will be associated with those groups.
             if GROUP_ATTRIBUTES:
@@ -124,8 +130,9 @@ class ShibbolethRemoteUserMiddleware(RemoteUserMiddleware):
         """
         groups = []
         for attr in GROUP_ATTRIBUTES:
-            parsed_groups = re.split('|'.join(GROUP_DELIMITERS),
-                                     request.META.get(attr, ''))
+            parsed_groups = re.split(
+                "|".join(GROUP_DELIMITERS), request.META.get(attr, "")
+            )
             groups += filter(bool, parsed_groups)
         return groups
 
