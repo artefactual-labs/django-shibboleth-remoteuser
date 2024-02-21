@@ -115,7 +115,10 @@ class ShibbolethRemoteUserMiddleware(RemoteUserMiddleware):
                 required, name, attr_processor = attr
             else:
                 required, name = attr
-                attr_processor = lambda x: x
+
+                def attr_processor(x):
+                    return x
+
             value = meta.get(header, None)
             if value:
                 shib_attrs[name] = attr_processor(value)

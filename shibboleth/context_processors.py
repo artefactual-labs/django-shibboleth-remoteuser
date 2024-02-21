@@ -23,7 +23,7 @@ def logout_link(request, *args):
     e.g: https://school.edu/Shibboleth.sso/Login
     """
     try:
-        from app_settings import LOGOUT_URL, LOGOUT_REDIRECT_URL
+        from app_settings import LOGOUT_REDIRECT_URL
     except ImportError:
         from .app_settings import LOGOUT_REDIRECT_URL
     # LOGOUT_REDIRECT_URL specifies a default logout page that will always be used when

@@ -23,7 +23,7 @@ def login_optional(func):
             shib = ShibbolethRemoteUserMiddleware()
             # Proccess the request with the Shib middlemare, which will log the
             # user in if we can.
-            proc = shib.process_request(request)
+            shib.process_request(request)
         return func(request, *args, **kwargs)
 
     return decorator

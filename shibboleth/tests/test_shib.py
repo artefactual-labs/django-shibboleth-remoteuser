@@ -68,9 +68,9 @@ settings.SHIBBOLETH_LOGOUT_URL = "https://sso.school.edu/logout?next=%s"
 settings.SHIBBOLETH_LOGOUT_REDIRECT_URL = "http://school.edu/"
 
 # MUST be imported after the settings above
-from shibboleth import app_settings
-from shibboleth import middleware
-from shibboleth import backends
+from shibboleth import app_settings  # noqa: E402
+from shibboleth import middleware  # noqa: E402
+from shibboleth import backends  # noqa: E402
 
 
 try:
@@ -124,7 +124,7 @@ class TestShibbolethRemoteUserMiddleware(TestCase):
 
     def test_remote_user_empty(self):
         test_request = self.request_factory.get("/", REMOTE_USER="")
-        response = self._process_request_through_middleware(test_request)
+        self._process_request_through_middleware(test_request)
         self.assertTrue("shib" not in test_request.session)
         self.assertFalse(test_request.user.is_authenticated)
 
