@@ -36,6 +36,7 @@ class QuickDjangoTest:
 
     def __configure_settings(self):
         settings.configure(
+            SECRET_KEY="sekret",
             DEBUG=True,
             DATABASES={
                 "default": {
@@ -56,7 +57,7 @@ class QuickDjangoTest:
                 "django.contrib.messages.middleware.MessageMiddleware",
                 "django.middleware.clickjacking.XFrameOptionsMiddleware",
             ],
-            ROOT_URLCONF="shib.urls",
+            ROOT_URLCONF="shibboleth.urls",
             TEMPLATES=[
                 {
                     "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -80,11 +81,11 @@ class QuickDjangoTest:
 if __name__ == "__main__":
     """
     What do when the user hits this file from the shell.
-    
+
     Example usage:
-    
+
         $ python quicktest.py app1 app2
-    
+
     """
     apps = sys.argv[1:]
     QuickDjangoTest(*apps)

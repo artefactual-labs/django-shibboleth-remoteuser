@@ -7,6 +7,7 @@ from django.contrib.auth.middleware import RemoteUserMiddleware
 from django.contrib.auth.models import Group
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.db.utils import IntegrityError
+from django.http import HttpResponse
 from django.test import RequestFactory
 from django.test import TestCase
 
@@ -101,13 +102,17 @@ class AttributesTest(TestCase):
         self.assertFalse(user.is_anonymous)
 
 
+def get_response(request):
+    return HttpResponse()
+
+
 class TestShibbolethRemoteUserMiddleware(TestCase):
     def setUp(self):
         self.request_factory = RequestFactory()
-        self.smw = SessionMiddleware()
-        self.amw = AuthenticationMiddleware()
-        self.rmw = RemoteUserMiddleware()
-        self.srmw = middleware.ShibbolethRemoteUserMiddleware()
+        self.smw = SessionMiddleware(get_response)
+        self.amw = AuthenticationMiddleware(get_response)
+        self.rmw = RemoteUserMiddleware(get_response)
+        self.srmw = middleware.ShibbolethRemoteUserMiddleware(get_response)
 
     def _process_request_through_middleware(self, request):
         self.smw.process_request(request)
